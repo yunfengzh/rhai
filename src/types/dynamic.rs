@@ -1426,16 +1426,17 @@ impl Dynamic {
     #[cfg(not(feature = "no_closure"))]
     #[inline]
     pub fn into_shared(self) -> Self {
-        let _access = self.access_mode();
-
-        match self.0 {
-            Union::Shared(..) => self,
-            _ => Self(Union::Shared(
-                crate::Locked::new(self).into(),
-                DEFAULT_TAG_VALUE,
-                _access,
-            )),
-        }
+        self
+        // let _access = self.access_mode();
+        //
+        // match self.0 {
+        //     Union::Shared(..) => self,
+        //     _ => Self(Union::Shared(
+        //         crate::Locked::new(self).into(),
+        //         DEFAULT_TAG_VALUE,
+        //         _access,
+        //     )),
+        // }
     }
     /// Return this [`Dynamic`], replacing it with [`Dynamic::UNIT`].
     #[inline(always)]
