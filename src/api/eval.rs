@@ -1,10 +1,10 @@
 //! Module that defines the public evaluation API of [`Engine`].
 
-use crate::ast::Expr;
+use crate::ast::{Expr, Stmt};
 use crate::eval::{Caches, GlobalRuntimeState};
 use crate::func::FnCallHashes;
 use crate::parser::ParseState;
-use crate::types::dynamic::Variant;
+use crate::types::dynamic::{AccessMode, Variant};
 use crate::types::Token;
 use crate::{
     calc_fn_hash, Dynamic, Engine, FnArgsVec, FuncArgs, Position, RhaiResult, RhaiResultOf, Scope,
@@ -251,6 +251,10 @@ impl Engine {
             g.source = orig_source;
         }}
 
+        // let stmts = ast.statements();
+        // for i in stmts {
+        //     self.two_pass(scope, i);
+        // }
         let r = self.eval_global_statements(global, caches, scope, ast.statements(), true)?;
 
         #[cfg(feature = "debugging")]
@@ -261,6 +265,23 @@ impl Engine {
         }
 
         Ok(r)
+    }
+
+    fn two_pass(&self, scope: &mut Scope, stmt: &Stmt) {
+        match stmt {
+            // Variable definition
+            Stmt::Var(x, _, _) => {
+                // Let/const statement
+                let (var_name, _, _) = &**x;
+
+                // Evaluate initial value
+                let value = Dynamic::UNIT;
+
+                scope.push_entry(var_name.name.clone(), AccessMode::ReadWrite, value);
+            }
+
+            _ => {}
+        }
     }
 
     /// Evaluate a binary operator with two operands with the [`Engine`].
